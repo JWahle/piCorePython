@@ -60,17 +60,14 @@ def key_press_event_of(event: InputEvent) -> KeyEvent | None:
     return None
 
 
-def adjust_volume(cdsp: CamillaClient, step: int):
+def adjust_volume(cdsp: CamillaClient, step: float):
     print("Adjust volume by " + str(step))
-    volume = cdsp.volume.main()
-    new_volume = min(volume + step, 0)
-    cdsp.volume.set_main(new_volume)
+    cdsp.volume.adjust_volume(0, step, -100, 0)
 
 
 def mute(cdsp: CamillaClient):
-    shall_mute = not cdsp.mute.main()
-    print("Mute: " + str(shall_mute))
-    cdsp.mute.set_main(shall_mute)
+    print("Toggling Mute")
+    cdsp.volume.toggle_mute(0)
 
 
 def set_config(cdsp: CamillaClient, config_name: str):
