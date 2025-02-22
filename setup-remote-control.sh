@@ -52,8 +52,6 @@ install_if_missing python3.11-evdev
 cd /usr/local/
 python3 -m venv remote-control
 sed -i 's|include-system-site-packages = false|include-system-site-packages = true|g' remote-control/pyvenv.cfg # include system packages in the environment
-(tr -d '\r' < remote-control/bin/activate) > remote-control/bin/activate_new # Create fixed version of the activate script. See https://stackoverflow.com/a/44446239
-mv -f remote-control/bin/activate_new remote-control/bin/activate
 source remote-control/bin/activate # activate custom python environment
 python3 -m pip install --upgrade pip
 pip install git+https://github.com/HEnquist/pycamilladsp.git@${PYCDSP_VERSION}
