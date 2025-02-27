@@ -1,18 +1,22 @@
 #!/bin/sh -e
 
-EXTENSION_NAME="python-environment"
+PYCDSP_VERSION="v3.0.0"  # https://github.com/HEnquist/pycamilladsp/releases
+EXTENSION_NAME="remote-control"
 BUILD_DIR="/tmp/${EXTENSION_NAME}"
 
 # Add .tcz dependencies without the .tcz-extension here (1 per line)
 TCZ_DEPENDENCIES="
+python3.11-evdev
 "
 
 # Add Python dependencies here (1 per line)
 PIP_DEPENDENCIES="
+git+https://github.com/HEnquist/pycamilladsp.git@${PYCDSP_VERSION}
 "
 
 # Add absolute paths to your Python scripts to run on startup here (1 per line)
 AUTOSTART_PYTHON_SCRIPTS="
+/home/tc/remote-control.py
 "
 
 ############ END VARIABLES
