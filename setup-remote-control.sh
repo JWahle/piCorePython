@@ -1,12 +1,14 @@
 #!/bin/sh -e
 
 PYCDSP_VERSION="v3.0.0"  # https://github.com/HEnquist/pycamilladsp/releases
-BUILD_DIR="/tmp/remote-control"
+EXTENSION_NAME="python-environment"
+BUILD_DIR="/tmp/${EXTENSION_NAME}"
+# TODO add tcz-dependencies, pip dependencies and python scripts to autostart
 
-### Abort, if remote-control extension is already installed
-if [ -f "/etc/sysconfig/tcedir/optional/remote-control.tcz" ]; then
-    >&2 echo "Uninstall the remote-control Extension and reboot, before installing it again"
-    >&2 echo "In Main Page > Extensions > Installed > select 'remote-control.tcz' and press 'Delete'"
+### Abort, if extension is already installed
+if [ -f "/etc/sysconfig/tcedir/optional/${EXTENSION_NAME}.tcz" ]; then
+    >&2 echo "Uninstall the ${EXTENSION_NAME} Extension and reboot, before installing it again"
+    >&2 echo "In Main Page > Extensions > Installed > select '${EXTENSION_NAME}.tcz' and press 'Delete'"
     exit 1
 fi
 
@@ -53,16 +55,16 @@ set -v
 install_temporarily_if_missing git
 install_if_missing python3.11
 install_if_missing python3.11-evdev
-sudo mkdir -m 775 /usr/local/remote-control
-sudo chown root:staff /usr/local/remote-control
-cd /usr/local/remote-control
+sudo mkdir -m 775 "/usr/local/${EXTENSION_NAME}"
+sudo chown root:staff "/usr/local/${EXTENSION_NAME}"
+cd "/usr/local/${EXTENSION_NAME}"
 python3 -m venv environment
 sed -i 's|include-system-site-packages = false|include-system-site-packages = true|g' environment/pyvenv.cfg # include system packages in the environment
 source environment/bin/activate # activate custom python environment
 python3 -m pip install --upgrade pip
 pip install git+https://github.com/HEnquist/pycamilladsp.git@${PYCDSP_VERSION}
 mkdir -p ${BUILD_DIR}/usr/local/
-sudo mv /usr/local/remote-control ${BUILD_DIR}/usr/local/
+sudo mv "/usr/local/${EXTENSION_NAME}" ${BUILD_DIR}/usr/local/
 
 
 ### Creating startup script
@@ -71,21 +73,21 @@ cd ${BUILD_DIR}/usr/local/tce.installed/
 echo "#!/bin/sh
 sudo -u tc sh -c '
 while [ ! -f /usr/local/bin/python3 ]; do sleep 1; done
-source /usr/local/remote-control/environment/bin/activate
+source /usr/local/${EXTENSION_NAME}/environment/bin/activate
 while [ ! -f /home/tc/remote-control.py ]; do sleep 1; done
 python3 -u /home/tc/remote-control.py > /tmp/remote-control.log 2>&1 &
-' &" > remote-control
-chmod 775 remote-control
+' &" > "${EXTENSION_NAME}"
+chmod 775 "${EXTENSION_NAME}"
 
 
 ### Creating tiny core extension
 cd /tmp
 install_temporarily_if_missing squashfs-tools
-mksquashfs remote-control remote-control.tcz
-mv -f remote-control.tcz /etc/sysconfig/tcedir/optional
+mksquashfs "${EXTENSION_NAME}" "${EXTENSION_NAME}.tcz"
+mv -f "${EXTENSION_NAME}.tcz" /etc/sysconfig/tcedir/optional
 echo "python3.11.tcz
-python3.11-evdev.tcz" > /etc/sysconfig/tcedir/optional/remote-control.tcz.dep
-echo remote-control.tcz >> /etc/sysconfig/tcedir/onboot.lst
+python3.11-evdev.tcz" > "/etc/sysconfig/tcedir/optional/${EXTENSION_NAME}.tcz.dep"
+echo "${EXTENSION_NAME}.tcz" >> /etc/sysconfig/tcedir/onboot.lst
 
 
 ### Backup and reboot
