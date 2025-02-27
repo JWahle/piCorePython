@@ -1,9 +1,21 @@
 #!/bin/sh -e
 
-PYCDSP_VERSION="v3.0.0"  # https://github.com/HEnquist/pycamilladsp/releases
 EXTENSION_NAME="python-environment"
 BUILD_DIR="/tmp/${EXTENSION_NAME}"
-# TODO add tcz-dependencies, pip dependencies and python scripts to autostart
+
+# Add .tcz dependencies without the .tcz-extension here (1 per line)
+TCZ_DEPENDENCIES="
+"
+
+# Add Python dependencies here (1 per line)
+PIP_DEPENDENCIES="
+"
+
+# Add absolute paths to your Python scripts to run on startup here (1 per line)
+AUTOSTART_PYTHON_SCRIPTS="
+"
+
+############ END VARIABLES
 
 ### Abort, if extension is already installed
 if [ -f "/etc/sysconfig/tcedir/optional/${EXTENSION_NAME}.tcz" ]; then
@@ -50,6 +62,13 @@ install_temporarily_if_missing(){
 
 set -v
 
+### Install .tcz dependencies
+for ext in $TCZ_DEPENDENCIES
+do
+  echo "Installing $ext"
+  install_if_missing $ext
+done
+
 
 ### Creating virtual environment
 install_temporarily_if_missing git
@@ -62,7 +81,11 @@ python3 -m venv environment
 sed -i 's|include-system-site-packages = false|include-system-site-packages = true|g' environment/pyvenv.cfg # include system packages in the environment
 source environment/bin/activate # activate custom python environment
 python3 -m pip install --upgrade pip
-pip install git+https://github.com/HEnquist/pycamilladsp.git@${PYCDSP_VERSION}
+for package in $PIP_DEPENDENCIES
+do
+  echo "Installing python package $package"
+  pip install $package
+done
 mkdir -p ${BUILD_DIR}/usr/local/
 sudo mv "/usr/local/${EXTENSION_NAME}" ${BUILD_DIR}/usr/local/
 
@@ -70,14 +93,22 @@ sudo mv "/usr/local/${EXTENSION_NAME}" ${BUILD_DIR}/usr/local/
 ### Creating startup script
 mkdir -p ${BUILD_DIR}/usr/local/tce.installed/
 cd ${BUILD_DIR}/usr/local/tce.installed/
-echo "#!/bin/sh
-sudo -u tc sh -c '
-while [ ! -f /usr/local/bin/python3 ]; do sleep 1; done
-source /usr/local/${EXTENSION_NAME}/environment/bin/activate
-while [ ! -f /home/tc/remote-control.py ]; do sleep 1; done
-python3 -u /home/tc/remote-control.py > /tmp/remote-control.log 2>&1 &
-' &" > "${EXTENSION_NAME}"
-chmod 775 "${EXTENSION_NAME}"
+set -- $AUTOSTART_PYTHON_SCRIPTS
+if [ $# -gt 0 ]; then
+  echo "#!/bin/sh
+  sudo -u tc sh -c '
+  while [ ! -f /usr/local/bin/python3 ]; do sleep 1; done
+  source /usr/local/${EXTENSION_NAME}/environment/bin/activate
+  while [ ! -f $1 ]; do sleep 1; done" > "${EXTENSION_NAME}"
+  for script in "$@"
+  do
+    echo "python3 -u $script >> /tmp/$(basename $script).log 2>&1 &" >> "${EXTENSION_NAME}"
+  done
+  echo "' &" >> "${EXTENSION_NAME}"
+  chmod 775 "${EXTENSION_NAME}"
+  echo "Generated autostart script:"
+  cat "${EXTENSION_NAME}"
+fi
 
 
 ### Creating tiny core extension
@@ -85,8 +116,12 @@ cd /tmp
 install_temporarily_if_missing squashfs-tools
 mksquashfs "${EXTENSION_NAME}" "${EXTENSION_NAME}.tcz"
 mv -f "${EXTENSION_NAME}.tcz" /etc/sysconfig/tcedir/optional
-echo "python3.11.tcz
-python3.11-evdev.tcz" > "/etc/sysconfig/tcedir/optional/${EXTENSION_NAME}.tcz.dep"
+dependencyFile="/etc/sysconfig/tcedir/optional/${EXTENSION_NAME}.tcz.dep"
+echo "python3.11.tcz" > "$dependencyFile"
+for ext in $TCZ_DEPENDENCIES
+do
+  echo "${ext}.tcz" >> "$dependencyFile"
+done
 echo "${EXTENSION_NAME}.tcz" >> /etc/sysconfig/tcedir/onboot.lst
 
 
