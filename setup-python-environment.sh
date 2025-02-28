@@ -4,7 +4,7 @@ PYCDSP_VERSION="v3.0.0"  # https://github.com/HEnquist/pycamilladsp/releases
 EXTENSION_NAME="remote-control"
 BUILD_DIR="/tmp/${EXTENSION_NAME}"
 
-# Add .tcz dependencies without the .tcz-extension here (1 per line)
+# Add piCorePlayer .tcz extension dependencies without the .tcz suffix here (1 per line)
 TCZ_DEPENDENCIES="
 python3.11-evdev
 "
