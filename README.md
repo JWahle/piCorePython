@@ -1,10 +1,9 @@
 # piCore python-environment
+The goal of this project is to help you to easily set up your custom Python environment including
+piCorePlayer/Tiny Core Linux extensions, pip dependencies and autostart your scripts on boot. 
 
-The goal of this project is to easily set up your custom Python environment including piCorePlayer extension,
-pip dependencies and autostart your scripts on boot. 
 
 ## Setup
-
 1. Edit the variables at the start of `setup-python-environment.sh` to fit your needs. ([example](https://github.com/JWahle/piCoreCDSP/compare/main...remote-control))
 2. Copy `setup-python-environment.sh` from your local machine to pCP and run it:  
    `scp setup-python-environment.sh tc@pcp.local:~ && ssh tc@pcp.local "./scp setup-python-environment.sh"`
