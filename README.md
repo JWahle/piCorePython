@@ -4,7 +4,7 @@ piCorePlayer/Tiny Core Linux extensions, pip dependencies and autostart your scr
 
 
 ## Setup
-1. Edit the variables at the start of `setup-python-environment.sh` to fit your needs. ([example](https://github.com/JWahle/piCoreCDSP/compare/main...remote-control))
+1. Edit the variables at the start of `setup-python-environment.sh` to fit your needs. ([Example: setting up a remote control with FLIRC](https://github.com/JWahle/piCorePython/compare/main...remote-control))
 2. Copy `setup-python-environment.sh` from your local machine to pCP and run it:  
    `scp setup-python-environment.sh tc@pcp.local:~ && ssh tc@pcp.local "./scp setup-python-environment.sh"`
 3. Copy your scripts from your local machine to pCP: `scp <your_script> tc@pcp.local:~`
