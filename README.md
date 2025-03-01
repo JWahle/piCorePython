@@ -1,6 +1,6 @@
 # piCorePlayer python-environment
 The goal of this project is to help you to easily set up your custom Python environment including
-piCorePlayer/Tiny Core Linux extensions, pip dependencies and autostart your scripts on boot. 
+piCorePlayer/Tiny Core Linux extensions, pip dependencies and autostart your scripts on boot.
 
 
 ## Setup
