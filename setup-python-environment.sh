@@ -63,6 +63,8 @@ install_temporarily_if_missing(){
 set -v
 
 ### Install .tcz dependencies
+install_if_missing python3.11
+$use32bit && install_temporarily_if_missing python3.11-dev
 for ext in $TCZ_DEPENDENCIES
 do
   echo "Installing $ext"
@@ -72,8 +74,6 @@ done
 
 ### Creating virtual environment
 install_temporarily_if_missing git
-install_if_missing python3.11
-install_if_missing python3.11-evdev
 sudo mkdir -m 775 "/usr/local/${EXTENSION_NAME}"
 sudo chown root:staff "/usr/local/${EXTENSION_NAME}"
 cd "/usr/local/${EXTENSION_NAME}"
