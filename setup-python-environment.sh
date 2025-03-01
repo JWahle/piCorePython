@@ -1,18 +1,22 @@
 #!/bin/sh -e
 
-EXTENSION_NAME="python-environment"
+EXTENSION_NAME="remote-control"
 BUILD_DIR="/tmp/${EXTENSION_NAME}"
 
 # Add piCorePlayer .tcz extension dependencies without the .tcz suffix here (1 per line)
 TCZ_DEPENDENCIES="
+python3.11-evdev
 "
 
 # Add Python dependencies here (1 per line)
+# https://github.com/HEnquist/pycamilladsp/releases
 PIP_DEPENDENCIES="
+git+https://github.com/HEnquist/pycamilladsp.git@v3.0.0
 "
 
 # Add absolute paths to your Python scripts to run on startup here (1 per line)
 AUTOSTART_PYTHON_SCRIPTS="
+/home/tc/remote-control.py
 "
 
 ############ END VARIABLES
