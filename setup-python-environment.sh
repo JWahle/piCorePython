@@ -27,7 +27,7 @@ fi
 ### Abort, if not enough free space
 requiredSpaceInMB=100
 availableSpaceInMB=$(/bin/df -m /dev/mmcblk0p2 | awk 'NR==2 { print $4 }')
-if [[ $availableSpaceInMB -le $requiredSpaceInMB ]]; then
+if [ "$availableSpaceInMB" -le $requiredSpaceInMB ]; then
     >&2 echo "Not enough free space"
     >&2 echo "Increase SD-Card size: Main Page > Additional functions > Resize FS"
     exit 1
@@ -39,6 +39,13 @@ if [ -d $BUILD_DIR ]; then
     exit 1
 fi
 mkdir -p $BUILD_DIR
+
+### Decide for 64bit or 32bit installation
+if [ "aarch64" = "$(uname -m)" ]; then
+    use32bit=false
+else
+    use32bit=true
+fi
 
 # Installs a module from the piCorePlayer repository - if not already installed.
 # Call like this: install_if_missing module_name
@@ -77,9 +84,8 @@ install_temporarily_if_missing git
 sudo mkdir -m 775 "/usr/local/${EXTENSION_NAME}"
 sudo chown root:staff "/usr/local/${EXTENSION_NAME}"
 cd "/usr/local/${EXTENSION_NAME}"
-python3 -m venv environment
-sed -i 's|include-system-site-packages = false|include-system-site-packages = true|g' environment/pyvenv.cfg # include system packages in the environment
-source environment/bin/activate # activate custom python environment
+python3 -m venv environment --system-site-packages
+. environment/bin/activate # activate custom python environment
 python3 -m pip install --upgrade pip
 for package in $PIP_DEPENDENCIES
 do
